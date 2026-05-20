@@ -6,7 +6,7 @@
 /*   By: kkido <kkido@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/12 13:26:09 by kkido             #+#    #+#             */
-/*   Updated: 2026/05/17 16:05:43 by kkido            ###   ########.fr       */
+/*   Updated: 2026/05/20 17:35:33 by kkido            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ class Fixed{
 		Fixed& operator = (const Fixed& src);
 		~Fixed();
 		int getRawBits(void) const;
-		void setRawBits(int const raw);
+		void setRawBits(int const &raw);
 
 	private:
 		int _fixed_point_num;
