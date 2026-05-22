@@ -6,15 +6,34 @@
 /*   By: kkido <kkido@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 14:36:27 by kkido             #+#    #+#             */
-/*   Updated: 2026/05/21 11:28:40 by kkido            ###   ########.fr       */
+/*   Updated: 2026/05/22 18:11:30 by kkido            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Fixed.hpp"
-#include <iostream>
+#include <climits>
 
 Fixed::Fixed() : _fixed_point_num(0){
 	std::cout << "Default constructor called" << std::endl;
+}
+
+Fixed::Fixed(const int value){
+	std::cout << "Int constructor called" << std::endl;
+	if(value > INT_MAX >> 8||value < INT_MIN >> 8){
+		std::cerr << "Error: overflow or underflow occured." << std::endl;
+		_fixed_point_num = 0;
+	}else
+		_fixed_point_num = value << 8;
+}
+
+Fixed::Fixed(const float value){
+	std::cout << "Float constructor called" << std::endl;
+	float tmp = value * 256.0f;
+	if(tmp > static_cast<float>(INT_MAX)||tmp < static_cast<float>(INT_MIN)){
+		std::cerr << "Error: overflow or underflow occured." << std::endl;
+		_fixed_point_num = 0;
+	}else
+		_fixed_point_num = roundf(tmp);
 }
 
 Fixed::Fixed(const Fixed &src){
@@ -34,10 +53,22 @@ Fixed::~Fixed(){
 }
 
 int Fixed::getRawBits(void) const{
-	std::cout << "getRawBits member function called" << std::endl;
 	return _fixed_point_num;
 }
 
 void Fixed::setRawBits(int const raw){
 	_fixed_point_num = raw;
+}
+
+float Fixed::toFloat(void) const{
+	return (static_cast<float>(_fixed_point_num) /256.0f);
+}
+
+int Fixed::toInt(void) const{
+	return(_fixed_point_num >> 8);
+}
+
+std::ostream& operator<<(std::ostream& os, const Fixed &fixed){
+	os << fixed.toFloat();
+	return os;
 }
