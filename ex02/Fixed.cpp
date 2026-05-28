@@ -6,11 +6,13 @@
 /*   By: kkido <kkido@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/28 23:44:05 by kkido             #+#    #+#             */
-/*   Updated: 2026/05/28 23:45:28 by kkido            ###   ########.fr       */
+/*   Updated: 2026/05/28 23:50:54 by kkido            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Fixed.hpp"
+
+#include <stdint.h>
 
 #include <climits>
 
@@ -117,8 +119,8 @@ Fixed Fixed::operator-(const Fixed& other) const {
 Fixed Fixed::operator*(const Fixed& other) const {
   Fixed result;
   int64_t value =
-      (static_cast<int64_t>(_fixed_point_num) * other.getRawBits()) >>
-      fractional_bit;
+      (static_cast<int64_t>(_fixed_point_num) * other.getRawBits()) *
+      (1 << fractional_bit);
   if (value > INT_MAX || value < INT_MIN) {
     std::cerr << "Error: overflow or underflow occurred." << std::endl;
     result.setRawBits(0);
