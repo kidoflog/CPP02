@@ -11,64 +11,187 @@
 /* ************************************************************************** */
 
 #include "Fixed.hpp"
+
 #include <climits>
 
-Fixed::Fixed() : _fixed_point_num(0){
-	std::cout << "Default constructor called" << std::endl;
+Fixed::Fixed() : _fixed_point_num(0) {
 }
 
-Fixed::Fixed(const int value){
-	std::cout << "Int constructor called" << std::endl;
-	if(value > INT_MAX >> 8||value < INT_MIN >> 8){
-		std::cerr << "Error: overflow or underflow occured." << std::endl;
-		_fixed_point_num = 0;
-	}else
-		_fixed_point_num = value << 8;
+Fixed::Fixed(const int value) {
+  if (value > INT_MAX >> 8 || value < INT_MIN >> 8) {
+    std::cerr << "Error: overflow or underflow occurred." << std::endl;
+    _fixed_point_num = 0;
+  } else
+    _fixed_point_num = value << 8;
 }
 
-Fixed::Fixed(const float value){
-	std::cout << "Float constructor called" << std::endl;
-	float tmp = value * 256.0f;
-	if(tmp > static_cast<float>(INT_MAX)||tmp < static_cast<float>(INT_MIN)){
-		std::cerr << "Error: overflow or underflow occured." << std::endl;
-		_fixed_point_num = 0;
-	}else
-		_fixed_point_num = roundf(tmp);
+Fixed::Fixed(const float value) {
+  float tmp = value * 256.0f;
+  if (tmp > static_cast<float>(INT_MAX) || tmp < static_cast<float>(INT_MIN)) {
+    std::cerr << "Error: overflow or underflow occurred." << std::endl;
+    _fixed_point_num = 0;
+  } else
+    _fixed_point_num = roundf(tmp);
 }
 
-Fixed::Fixed(const Fixed &src){
-	std::cout << "Copy constructor called" << std::endl;
-	this->_fixed_point_num = src.getRawBits();
+Fixed::Fixed(const Fixed& src) {
+  this->_fixed_point_num = src.getRawBits();
 }
 
-Fixed& Fixed::operator = (const Fixed &src){
-	std::cout << "Copy assignment operator called" << std::endl;
-	if(this != &src)
-		this->_fixed_point_num = src.getRawBits();
-	return *this;
+Fixed& Fixed::operator=(const Fixed& src) {
+  if (this != &src) this->_fixed_point_num = src.getRawBits();
+  return *this;
 }
 
-Fixed::~Fixed(){
-	std::cout << "Destructor called" << std::endl;
+Fixed::~Fixed() {
 }
 
-int Fixed::getRawBits(void) const{
-	return _fixed_point_num;
+int Fixed::getRawBits(void) const {
+  return _fixed_point_num;
 }
 
-void Fixed::setRawBits(int const raw){
-	_fixed_point_num = raw;
+void Fixed::setRawBits(int const raw) {
+  _fixed_point_num = raw;
 }
 
-float Fixed::toFloat(void) const{
-	return (static_cast<float>(_fixed_point_num) /256.0f);
+float Fixed::toFloat(void) const {
+  return (static_cast<float>(_fixed_point_num) / 256.0f);
 }
 
-int Fixed::toInt(void) const{
-	return(_fixed_point_num >> 8);
+int Fixed::toInt(void) const {
+  return (_fixed_point_num >> 8);
 }
 
-std::ostream& operator<<(std::ostream& os, const Fixed &fixed){
-	os << fixed.toFloat();
-	return os;
+std::ostream& operator<<(std::ostream& os, const Fixed& fixed) {
+  os << fixed.toFloat();
+  return os;
+}
+
+bool Fixed::operator>(const Fixed& other) const {
+  return _fixed_point_num > other.getRawBits();
+}
+
+bool Fixed::operator<(const Fixed& other) const {
+  return _fixed_point_num < other.getRawBits();
+}
+
+bool Fixed::operator>=(const Fixed& other) const {
+  return _fixed_point_num >= other.getRawBits();
+}
+
+bool Fixed::operator<=(const Fixed& other) const {
+  return _fixed_point_num <= other.getRawBits();
+}
+
+bool Fixed::operator==(const Fixed& other) const {
+  return _fixed_point_num == other.getRawBits();
+}
+
+bool Fixed::operator!=(const Fixed& other) const {
+  return _fixed_point_num != other.getRawBits();
+}
+
+Fixed Fixed::operator+(const Fixed& other) const {
+  Fixed result;
+  int64_t value = static_cast<int64_t>(_fixed_point_num) + other.getRawBits();
+  if (value > INT_MAX || value < INT_MIN) {
+    std::cerr << "Error: overflow or underflow occurred." << std::endl;
+    result.setRawBits(0);
+  } else
+    result.setRawBits(static_cast<int>(value));
+  return result;
+}
+
+Fixed Fixed::operator-(const Fixed& other) const {
+  Fixed result;
+  int64_t value = static_cast<int64_t>(_fixed_point_num) - other.getRawBits();
+  if (value > INT_MAX || value < INT_MIN) {
+    std::cerr << "Error: overflow or underflow occurred." << std::endl;
+    result.setRawBits(0);
+  } else
+    result.setRawBits(static_cast<int>(value));
+  return result;
+}
+
+Fixed Fixed::operator*(const Fixed& other) const {
+  Fixed result;
+  int64_t value =
+      (static_cast<int64_t>(_fixed_point_num) * other.getRawBits()) >>
+      fractional_bit;
+  if (value > INT_MAX || value < INT_MIN) {
+    std::cerr << "Error: overflow or underflow occurred." << std::endl;
+    result.setRawBits(0);
+  } else
+    result.setRawBits(static_cast<int>(value));
+  return result;
+}
+
+Fixed Fixed::operator/(const Fixed& other) const {
+  Fixed result;
+
+  if (other.getRawBits() == 0) {
+    std::cerr << "Error: division by zero" << std::endl;
+    result.setRawBits(0);
+    return result;
+  }
+
+  int64_t value =
+      (static_cast<int64_t>(_fixed_point_num) << 8) / other.getRawBits();
+
+  if (value > INT_MAX || value < INT_MIN) {
+    std::cerr << "Error: overflow or underflow occurred." << std::endl;
+    result.setRawBits(0);
+  } else
+    result.setRawBits(static_cast<int>(value));
+  return result;
+}
+
+Fixed& Fixed::operator++() {
+  _fixed_point_num++;
+  return *this;
+}
+
+Fixed Fixed::operator++(int) {
+  Fixed tmp(*this);
+  _fixed_point_num++;
+  return tmp;
+}
+
+Fixed& Fixed::operator--() {
+  _fixed_point_num--;
+  return *this;
+}
+
+Fixed Fixed::operator--(int) {
+  Fixed tmp(*this);
+  _fixed_point_num--;
+  return tmp;
+}
+
+Fixed& Fixed::min(Fixed& fixed_1, Fixed& fixed_2) {
+  if (fixed_1.getRawBits() <= fixed_2.getRawBits())
+    return fixed_1;
+  else
+    return fixed_2;
+}
+
+const Fixed& Fixed::min(const Fixed& fixed_1, const Fixed& fixed_2) {
+  if (fixed_1.getRawBits() <= fixed_2.getRawBits())
+    return fixed_1;
+  else
+    return fixed_2;
+}
+
+Fixed& Fixed::max(Fixed& fixed_1, Fixed& fixed_2) {
+  if (fixed_1.getRawBits() >= fixed_2.getRawBits())
+    return fixed_1;
+  else
+    return fixed_2;
+}
+
+const Fixed& Fixed::max(const Fixed& fixed_1, const Fixed& fixed_2) {
+  if (fixed_1.getRawBits() >= fixed_2.getRawBits())
+    return fixed_1;
+  else
+    return fixed_2;
 }

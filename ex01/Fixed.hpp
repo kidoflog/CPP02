@@ -15,24 +15,24 @@
 #include <cmath>
 #include <iostream>
 
-class Fixed{
-	public:
-		Fixed();
-		Fixed(const int value);
-		Fixed(const float value);
-		Fixed(const Fixed&);
-		Fixed& operator = (const Fixed& src);
-		~Fixed();
-		int getRawBits(void) const;
-		void setRawBits(int const raw);
-		float toFloat(void) const;
-		int toInt(void) const;
+class Fixed {
+ public:
+  Fixed();
+  Fixed(const int value);
+  Fixed(const float value);
+  Fixed(const Fixed&);
+  Fixed& operator=(const Fixed& src);
+  ~Fixed();
+  int getRawBits(void) const;
+  void setRawBits(int const raw);
+  float toFloat(void) const;
+  int toInt(void) const;
 
-	private:
-		int _fixed_point_num;
-		static const int fractional_bit = 8;
+ private:
+  int _fixed_point_num;
+  static const int fractional_bit = 8;
 };
 
-std::ostream& operator<<(std::ostream& os, const Fixed &fixed);
+std::ostream& operator<<(std::ostream& os, const Fixed& fixed);
 
 #endif
