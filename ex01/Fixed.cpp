@@ -20,11 +20,11 @@ Fixed::Fixed() : _fixed_point_num(0) {
 
 Fixed::Fixed(const int value) {
   std::cout << "Int constructor called" << std::endl;
-  if (value > INT_MAX >> 8 || value < INT_MIN >> 8) {
+  if (value > INT_MAX >> fractional_bit || value < INT_MIN >> fractional_bit) {
     std::cerr << "Error: overflow or underflow occurred." << std::endl;
     _fixed_point_num = 0;
   } else
-    _fixed_point_num = value << 8;
+    _fixed_point_num = value * (1 << fractional_bit);
 }
 
 Fixed::Fixed(const float value) {
@@ -65,7 +65,7 @@ float Fixed::toFloat(void) const {
 }
 
 int Fixed::toInt(void) const {
-  return (_fixed_point_num >> 8);
+  return (_fixed_point_num >> fractional_bit);
 }
 
 std::ostream& operator<<(std::ostream& os, const Fixed& fixed) {

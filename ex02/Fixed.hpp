@@ -53,7 +53,7 @@ class Fixed {
 
  private:
   int _fixed_point_num;
-  static const int fractional_bit = 8;
+  static const int fractional_bit = fractional_bit;
 };
 
 std::ostream& operator<<(std::ostream& os, const Fixed& fixed);

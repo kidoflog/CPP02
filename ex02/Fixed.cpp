@@ -6,7 +6,8 @@
 /*   By: kkido <kkido@student.42tokyo.jp>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/17 14:36:27 by kkido             #+#    #+#             */
-/*   Updated: 2026/05/22 18:11:30 by kkido            ###   ########.fr       */
+/*   Updated: 2026/05/22 1fractional_bit:11:30 by kkido            ###
+ * ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +19,11 @@ Fixed::Fixed() : _fixed_point_num(0) {
 }
 
 Fixed::Fixed(const int value) {
-  if (value > INT_MAX >> 8 || value < INT_MIN >> 8) {
+  if (value > INT_MAX >> fractional_bit || value < INT_MIN >> fractional_bit) {
     std::cerr << "Error: overflow or underflow occurred." << std::endl;
     _fixed_point_num = 0;
   } else
-    _fixed_point_num = value << 8;
+    _fixed_point_num = value * (1 << fractional_bit);
 }
 
 Fixed::Fixed(const float value) {
@@ -59,7 +60,7 @@ float Fixed::toFloat(void) const {
 }
 
 int Fixed::toInt(void) const {
-  return (_fixed_point_num >> 8);
+  return _fixed_point_num / (1 << fractional_bit);
 }
 
 std::ostream& operator<<(std::ostream& os, const Fixed& fixed) {
@@ -135,8 +136,8 @@ Fixed Fixed::operator/(const Fixed& other) const {
     return result;
   }
 
-  int64_t value =
-      (static_cast<int64_t>(_fixed_point_num) << 8) / other.getRawBits();
+  int64_t value = (static_cast<int64_t>(_fixed_point_num) << fractional_bit) /
+                  other.getRawBits();
 
   if (value > INT_MAX || value < INT_MIN) {
     std::cerr << "Error: overflow or underflow occurred." << std::endl;
